@@ -1,0 +1,12 @@
+.vs/
+Debug/
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.suo
+*.user
+*.tlog/
+*.recipe
+*.ipch
+*.log
