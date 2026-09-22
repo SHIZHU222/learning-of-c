@@ -17,22 +17,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 计算今天日期
-        id: date
-        run: echo "date=$(TZ=Asia/Shanghai date +'%-m.%-d-%Y')" >> "$GITHUB_OUTPUT"
+      - name: 查找下一个待发布文件夹
+        id: next
+        run: echo "name=$(find pending -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort | head -1)" >> "$GITHUB_OUTPUT"
 
       - name: 发布当天文件夹并推送到 GitHub
         run: |
-          DATE="${{ steps.date.outputs.date }}"
-          if [ ! -d "pending/$DATE" ]; then
-            echo "今日($DATE)无待发布内容，跳过"
+          NEXT="${{ steps.next.outputs.name }}"
+          if [ -z "$NEXT" ]; then
+            echo "没有待发布内容，跳过"
             exit 0
           fi
           git config user.name "<你的GitHub用户名>"
           git config user.email "<你的GitHub邮箱>"
-          mv "pending/$DATE" "$DATE"
+          mv "pending/$NEXT" "$NEXT"
           git add -A
-          git commit -m "今日训练 $DATE"
+          git commit -m "今日训练 $NEXT"
           git push origin master
 
       - name: 配置 Gitee SSH
@@ -45,9 +45,9 @@ jobs:
 
       - name: 镜像并推送到 Gitee
         run: |
-          DATE="${{ steps.date.outputs.date }}"
-          if [ ! -d "pending/$DATE" ] && [ ! -d "$DATE" ]; then
-            echo "今日($DATE)无内容，跳过 Gitee"
+          NEXT="${{ steps.next.outputs.name }}"
+          if [ -z "$NEXT" ]; then
+            echo "没有待发布内容，跳过 Gitee"
             exit 0
           fi
           GITEE_DIR="$RUNNER_TEMP/gitee-clone"
@@ -61,6 +61,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Gitee 无变化"
           else
-            git commit -m "今日训练 $DATE"
+            git commit -m "今日训练 $NEXT"
             git push origin master
           fi
