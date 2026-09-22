@@ -24,10 +24,10 @@ jobs:
       - name: 配置 Gitee SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITEE_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.GITEE_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts 2>/dev/null
-          printf 'Host gitee.com\n  StrictHostKeyChecking accept-new\n' >> ~/.ssh/config
+          printf 'Host gitee.com\n  StrictHostKeyChecking accept-new\n  IdentitiesOnly yes\n  IdentityFile ~/.ssh/id_ed25519\n' > ~/.ssh/config
 
       - name: 从 Gitee 发布当天文件夹并同步到 GitHub
         run: |
@@ -53,4 +53,4 @@ jobs:
           git config user.email "wxwkjal@outlook.com"
           git add -A
           git commit -m "今日训练 $DATE"
-          git push origin master
+          git push origin HEAD:master
