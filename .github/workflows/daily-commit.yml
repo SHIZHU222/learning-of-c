@@ -21,20 +21,6 @@ jobs:
         id: date
         run: echo "date=$(TZ=Asia/Shanghai date +'%-m.%-d-%Y')" >> "$GITHUB_OUTPUT"
 
-      - name: 发布当天文件夹并推送到 GitHub
-        run: |
-          DATE="${{ steps.date.outputs.date }}"
-          if [ ! -d "pending/$DATE" ]; then
-            echo "今日($DATE)无待发布内容，跳过"
-            exit 0
-          fi
-          git config user.name "SHIZHU222"
-          git config user.email "wxwkjal@outlook.com"
-          mv "pending/$DATE" "$DATE"
-          git add -A
-          git commit -m "今日训练 $DATE"
-          git push origin master
-
       - name: 配置 Gitee SSH
         run: |
           mkdir -p ~/.ssh
@@ -43,24 +29,28 @@ jobs:
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts 2>/dev/null
           printf 'Host gitee.com\n  StrictHostKeyChecking accept-new\n' >> ~/.ssh/config
 
-      - name: 镜像并推送到 Gitee
+      - name: 从 Gitee 发布当天文件夹并同步到 GitHub
         run: |
           DATE="${{ steps.date.outputs.date }}"
-          if [ ! -d "pending/$DATE" ] && [ ! -d "$DATE" ]; then
-            echo "今日($DATE)无内容，跳过 Gitee"
-            exit 0
-          fi
           GITEE_DIR="$RUNNER_TEMP/gitee-clone"
           rm -rf "$GITEE_DIR"
           git clone git@gitee.com:CCCSHIZHU/journey-of-learning-c.git "$GITEE_DIR"
           cd "$GITEE_DIR"
+          if [ ! -d "pending/$DATE" ]; then
+            echo "今日($DATE)无待发布内容，跳过"
+            exit 0
+          fi
           git config user.name "CCCSHIZHU"
           git config user.email "ybfffw@163.com"
-          rsync -a --delete --exclude='.git' "$GITHUB_WORKSPACE/" ./
+          mv "pending/$DATE" "$DATE"
           git add -A
-          if git diff --cached --quiet; then
-            echo "Gitee 无变化"
-          else
-            git commit -m "今日训练 $DATE"
-            git push origin master
-          fi
+          git commit -m "今日训练 $DATE"
+          git push origin master
+          cp -r "$DATE" "$GITHUB_WORKSPACE/"
+
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "SHIZHU222"
+          git config user.email "wxwkjal@outlook.com"
+          git add -A
+          git commit -m "今日训练 $DATE"
+          git push origin master
