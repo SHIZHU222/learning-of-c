@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "10.24-2026\\x64\\Debug\\;ikou.obj",
+            "outputs": [
+                "10.24-2026\\x64\\Debug\\;ikou.c.obj.dt.module.json",
+                "10.24-2026\\x64\\Debug\\;ikou.c.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
