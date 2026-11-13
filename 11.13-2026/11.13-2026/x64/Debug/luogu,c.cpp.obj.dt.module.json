@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "11.13-2026\\x64\\Debug\\luogu,c.obj",
+            "outputs": [
+                "11.13-2026\\x64\\Debug\\luogu,c.cpp.obj.dt.module.json",
+                "11.13-2026\\x64\\Debug\\luogu,c.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
